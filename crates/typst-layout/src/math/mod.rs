@@ -473,7 +473,10 @@ fn layout_realized(
     let comp = match item {
         MathItem::Component(comp) => comp,
         MathItem::Spacing(amount, font_size, _) => {
-            ctx.push(MathFragment::Space(amount.at(*font_size)));
+            // Infinite spacing cannot be laid out, so we ignore it.
+            let amount = amount.at(*font_size);
+            let amount = if amount.is_finite() { amount } else { Abs::zero() };
+            ctx.push(MathFragment::Space(amount));
             return Ok(());
         }
         MathItem::Space => {

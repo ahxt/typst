@@ -168,3 +168,10 @@
   let measured = measure(image("/assets/images/monkey.svg"))
   test(measured.baseline, height)
 }
+
+--- issue-5263-measure-infinite-spacing paged empty ---
+// Test that measuring infinite spacing does not panic.
+#context {
+  let _ = measure(layout(bounds => h(bounds.width)))
+  let _ = measure(h(calc.inf * 1pt))
+}

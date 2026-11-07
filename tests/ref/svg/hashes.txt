@@ -785,6 +785,7 @@ e4d3288ec3fc1c0d013aaac86578ebac issue-5256-multiple-footnotes-in-footnote
 62c29bece0ae868c474f2fb13cd7530b issue-5262-block-negative-height-implicit
 a1af6ebc8bc353e38a68221f20e0d9f4 issue-5262-block-negative-height-in-flow
 7647d593622a3b598ac7bf2ac303614a issue-5262-text-negative-size
+5a8b6aec1bd92917538d5620340d882f issue-5263-math-infinite-spacing
 b17673aaad19356b7d87b7c7bb5ed505 issue-5276-shaping-consecutive-ltr-with-lang
 36e9aa6cd73f68daff17444d6182fa17 issue-529-enum-center-alignment
 c8e8e2aea5517f5ec70d0451f601fc58 issue-529-list-center-alignment
@@ -842,6 +843,7 @@ eaaca053bc6feddd3f1b9b585d92246c issue-6666-auto-hlines-around-header
 061808148873e4f5c8cea3c5b40e05af issue-6680-gradient-linear-with-aspect-correction
 77a6fe5b06d7cffd9c2039b733e05c0a issue-6822-layout-expand
 603d7dd16a5926119146683428ff5233 issue-6822-layout-multiple
+116ddcafb53a96743661b0eefc3cae3a issue-6863-block-inset-100-percent-auto-page
 f1003f00895ba8e491665370131ce322 issue-6869-image-zero-sized
 c1e125e744728bcf7eb4d563a4350ed3 issue-6961-tab-crlf-raw-indent
 3d2d1e25d75788136e8b71bcb22d1a8f issue-7103-wrong-state-calculation
@@ -857,6 +859,7 @@ dd4ae7847c8f91e65ff77f284adfca73 issue-7249-multiple-lookup-tables
 18e203288bbc32afdfa392ed6ad78086 issue-7437-math-accent-text-presentation
 aee17aa3505fce3191693f5b90a4cb4a issue-7541-justify-with-zero-width-space
 d987856ceb0fd2f906c660cd0846c485 issue-758-link-repeat
+8af0a34099460ab75657f726c1ba914e issue-7639-nested-block-inset-50-percent
 082220526fd005816de2a95e0e7e219c issue-785-cite-locate
 7cebe3edfd995e8e8ff41448852673a3 issue-7872-negative-scale
 366fcb9e4d729259ba5ed7a60884efb4 issue-7901-rect-negative-dimensions-radius

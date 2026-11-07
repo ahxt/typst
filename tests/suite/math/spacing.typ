@@ -80,3 +80,14 @@ $
 10.1degree \
 10.1 degree
 $
+
+--- issue-5263-math-infinite-spacing paged ---
+// Test that infinite spacing in math does not panic.
+#show math.equation.where(number-align: horizon + end): it => {
+  // Prevent recursion.
+  let eq = math.equation.with(block: true, number-align: start)
+  let w = measure(eq(it)).width
+  layout(bounds => eq(it + h(bounds.width)))
+}
+
+$ a + #block[$ a $] $

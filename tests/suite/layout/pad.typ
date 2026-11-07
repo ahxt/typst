@@ -36,3 +36,21 @@ Hi #box(pad(left: 10pt)[A]) there
 --- issue-5160-unbreakable-pad paged ---
 #set block(breakable: false)
 #block(width: 100%, pad(x: 20pt, align(right)[A]))
+
+--- issue-6863-measure-box-inset-100-percent paged empty ---
+// Test that measuring a box whose relative insets add up to 100% does not
+// panic.
+#context {
+  let _ = measure(box(inset: (x: 50%))[A])
+  let _ = measure(block(inset: 100%)[A])
+}
+
+--- issue-6863-block-inset-100-percent-auto-page paged ---
+// Test that relative insets adding up to 100% in an auto-sized page do not
+// panic.
+#set page(width: auto)
+#block(inset: (x: 50%))[A]
+#pad(x: 50%)[A]
+
+--- issue-7639-nested-block-inset-50-percent paged ---
+#figure(block(inset: 50%, block(inset: 1pt, grid(none, grid()))))

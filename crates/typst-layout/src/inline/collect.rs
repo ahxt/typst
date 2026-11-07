@@ -189,10 +189,14 @@ pub fn collect<'a>(
 
             collector.push_item(match elem.amount {
                 Spacing::Fr(fr) => Item::Fractional(fr, None),
-                Spacing::Rel(rel) => Item::Absolute(
-                    rel.resolve(styles).relative_to(region.x),
-                    elem.weak.get(styles),
-                ),
+                Spacing::Rel(rel) => {
+                    // Spacing that is infinite (e.g. relative to an unbounded
+                    // region, or explicitly) cannot be laid out, so we ignore
+                    // it instead of producing a frame of infinite size.
+                    let amount = rel.resolve(styles).relative_to(region.x);
+                    let amount = if amount.is_finite() { amount } else { Abs::zero() };
+                    Item::Absolute(amount, elem.weak.get(styles))
+                }
             });
         } else if let Some(elem) = child.to_packed::<LinebreakElem>() {
             collector.push_text(

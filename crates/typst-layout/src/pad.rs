@@ -5,6 +5,7 @@ use typst_library::introspection::Locator;
 use typst_library::layout::{
     Abs, Fragment, Frame, PadElem, Point, Regions, Rel, Sides, Size,
 };
+use typst_utils::Numeric;
 
 /// Layout the padded content.
 #[typst_macros::time(span = elem.span())]
@@ -80,9 +81,15 @@ pub fn shrink_multiple(
 pub fn grow(frame: &mut Frame, inset: &Sides<Rel<Abs>>) {
     // Apply the padding inversely such that the grown size padded
     // yields the frame's size.
-    let padded = frame
-        .size()
-        .zip_map(inset.sum_by_axis(), |s, p| (s + p.abs) / (1.0 - p.rel.get()));
+    //
+    // If the relative parts of the insets sum up to 100%, there is no finite
+    // size that satisfies the equation (we'd divide by zero). In that case, we
+    // ignore the relative part and only grow by the absolute part, so that we
+    // never produce an infinite frame size.
+    let padded = frame.size().zip_map(inset.sum_by_axis(), |s, p| {
+        let grown = (s + p.abs) / (1.0 - p.rel.get());
+        if grown.is_finite() { grown } else { s + p.abs }
+    });
 
     let inset = inset.relative_to(padded);
     let offset = Point::new(inset.left, inset.top);
