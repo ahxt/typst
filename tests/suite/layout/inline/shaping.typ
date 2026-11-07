@@ -64,3 +64,7 @@ A🐈ዲሞB
 --- shaping-emoji-bad-zwj paged ---
 // These two shouldn't be affected by a zero-width joiner.
 🏞‍🌋
+
+--- issue-8966-long-multibyte-word paged ---
+// Test that a word longer than 64 KiB of multi-byte text can be exported.
+#box(width: 10pt, clip: true)[#("é" * 32768)]

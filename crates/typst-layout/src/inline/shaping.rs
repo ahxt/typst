@@ -357,6 +357,7 @@ impl<'a> ShapedText<'a> {
             }
 
             let pos = Point::new(offset, top + shift - y_offset.at(size));
+            let item_text = &self.text[range.start - self.base..range.end - self.base];
             let glyphs: Vec<Glyph> = group
                 .iter()
                 .map(|shaped: &ShapedGlyph| {
@@ -428,8 +429,14 @@ impl<'a> ShapedText<'a> {
                         x_offset,
                         y_advance: Em::zero(),
                         y_offset: Em::zero(),
-                        range: (shaped.range.start - range.start).saturating_as()
-                            ..(shaped.range.end - range.start).saturating_as(),
+                        range: saturate_to_char_boundary(
+                            shaped.range.start - range.start,
+                            item_text,
+                        )
+                            ..saturate_to_char_boundary(
+                                shaped.range.end - range.start,
+                                item_text,
+                            ),
                         span,
                     }
                 })
@@ -442,7 +449,7 @@ impl<'a> ShapedText<'a> {
                 region: self.region,
                 fill: fill.clone(),
                 stroke: stroke.clone().map(|s| s.unwrap_or_default()),
-                text: self.text[range.start - self.base..range.end - self.base].into(),
+                text: item_text.into(),
                 glyphs,
             };
 
@@ -1234,6 +1241,19 @@ pub fn create_shape_plan(
         language,
         features,
     ))
+}
+
+/// Saturates a byte index within `text` to the `u16` range of a glyph's text
+/// range, making sure that the result still lies on a char boundary of `text`.
+///
+/// Without this, the end of the range of glyphs near the end of a text item
+/// longer than 64 KiB could end up in the middle of a multi-byte character.
+fn saturate_to_char_boundary(index: usize, text: &str) -> u16 {
+    let mut index = index.min(u16::MAX as usize).min(text.len());
+    while !text.is_char_boundary(index) {
+        index -= 1;
+    }
+    index as u16
 }
 
 /// Shape the text with tofus from the given font.
