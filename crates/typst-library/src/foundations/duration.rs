@@ -1,9 +1,10 @@
 use std::fmt::{self, Debug, Formatter};
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::Div;
 
 use ecow::{EcoString, eco_format};
 use time::ext::NumericalDuration;
 
+use crate::diag::StrResult;
 use crate::foundations::{Repr, func, repr, scope, ty};
 
 /// Represents a positive or negative span of time.
@@ -69,14 +70,15 @@ impl Duration {
         #[named]
         #[default(0)]
         weeks: i64,
-    ) -> Duration {
-        Duration::from(
-            time::Duration::seconds(seconds)
-                + time::Duration::minutes(minutes)
-                + time::Duration::hours(hours)
-                + time::Duration::days(days)
-                + time::Duration::weeks(weeks),
-        )
+    ) -> StrResult<Duration> {
+        let overflow = || "duration is too large";
+        let total = seconds
+            .checked_add(minutes.checked_mul(60).ok_or_else(overflow)?)
+            .and_then(|s| s.checked_add(hours.checked_mul(3_600)?))
+            .and_then(|s| s.checked_add(days.checked_mul(86_400)?))
+            .and_then(|s| s.checked_add(weeks.checked_mul(604_800)?))
+            .ok_or_else(overflow)?;
+        Ok(Duration::from(time::Duration::seconds(total)))
     }
 
     /// The duration expressed in seconds.
@@ -174,44 +176,45 @@ impl From<Duration> for time::Duration {
     }
 }
 
-impl Add for Duration {
-    type Output = Duration;
+impl Duration {
+    /// Add two durations, failing on overflow.
+    pub fn checked_add(self, rhs: Self) -> StrResult<Self> {
+        self.0.checked_add(rhs.0).map(Self).ok_or_else(too_large)
+    }
 
-    fn add(self, rhs: Self) -> Self::Output {
-        Duration(self.0 + rhs.0)
+    /// Subtract two durations, failing on overflow.
+    pub fn checked_sub(self, rhs: Self) -> StrResult<Self> {
+        self.0.checked_sub(rhs.0).map(Self).ok_or_else(too_large)
+    }
+
+    /// Negate a duration, failing on overflow.
+    pub fn checked_neg(self) -> StrResult<Self> {
+        Self(time::Duration::ZERO).checked_sub(self)
+    }
+
+    /// Multiply by a float, failing if the result is not representable.
+    pub fn checked_mul(self, rhs: f64) -> StrResult<Self> {
+        Self::from_seconds_f64(self.0.as_seconds_f64() * rhs)
+    }
+
+    /// Divide by a float, failing if the result is not representable.
+    pub fn checked_div(self, rhs: f64) -> StrResult<Self> {
+        Self::from_seconds_f64(self.0.as_seconds_f64() / rhs)
+    }
+
+    /// Create a duration from seconds, failing if it is not finite or out of
+    /// the representable range.
+    fn from_seconds_f64(secs: f64) -> StrResult<Self> {
+        // `i64::MAX as f64` is 2^63, so both bounds are exact powers of two.
+        if !secs.is_finite() || secs < i64::MIN as f64 || secs >= i64::MAX as f64 {
+            return Err(too_large());
+        }
+        Ok(Self(time::Duration::seconds_f64(secs)))
     }
 }
 
-impl Sub for Duration {
-    type Output = Duration;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        Duration(self.0 - rhs.0)
-    }
-}
-
-impl Neg for Duration {
-    type Output = Duration;
-
-    fn neg(self) -> Self::Output {
-        Duration(-self.0)
-    }
-}
-
-impl Mul<f64> for Duration {
-    type Output = Duration;
-
-    fn mul(self, rhs: f64) -> Self::Output {
-        Duration(self.0 * rhs)
-    }
-}
-
-impl Div<f64> for Duration {
-    type Output = Duration;
-
-    fn div(self, rhs: f64) -> Self::Output {
-        Duration(self.0 / rhs)
-    }
+fn too_large() -> EcoString {
+    "duration is too large".into()
 }
 
 impl Div for Duration {

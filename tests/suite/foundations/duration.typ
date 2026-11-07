@@ -116,3 +116,35 @@
 #test(duration(minutes: 20) < duration(minutes: 10), false)
 #test(duration(minutes: 20) <= duration(minutes: 10), false)
 #test(duration(minutes: 20) == duration(minutes: 10), false)
+
+--- duration-constructor-overflow eval ---
+// Error: 2-35 duration is too large
+#duration(weeks: 9999999999999999)
+
+--- duration-constructor-overflow-sum eval ---
+// Error: 2-87 duration is too large
+#duration(weeks: 15250284452471, days: 7, hours: 24 * 8, seconds: 9223372036854775807)
+
+--- duration-add-overflow eval ---
+// Error: 3-66 duration is too large
+#(duration(weeks: 9000000000000) + duration(weeks: 9000000000000))
+
+--- duration-sub-overflow eval ---
+// Error: 3-67 duration is too large
+#(duration(weeks: 9000000000000) - duration(weeks: -9000000000000))
+
+--- duration-neg-overflow eval ---
+// Error: 3-50 duration is too large
+#(-duration(seconds: int("-9223372036854775808")))
+
+--- duration-mul-overflow eval ---
+// Error: 3-45 duration is too large
+#(duration(weeks: 9000000000000) * 1000000.0)
+
+--- duration-div-overflow eval ---
+// Error: 3-45 duration is too large
+#(duration(weeks: 9000000000000) / 0.0000001)
+
+--- duration-div-zero eval ---
+// Error: 3-29 cannot divide by zero
+#(duration(seconds: 1) / 0.0)

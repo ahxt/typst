@@ -142,6 +142,11 @@ impl Array {
         let count = self
             .len()
             .checked_mul(n)
+            .filter(|&count| {
+                count
+                    .checked_mul(std::mem::size_of::<Value>())
+                    .is_some_and(|bytes| bytes <= super::str::MAX_REPEAT_BYTES)
+            })
             .ok_or_else(|| format!("cannot repeat this array {n} times"))?;
 
         Ok(self.iter().cloned().cycle().take(count).collect())
@@ -295,7 +300,7 @@ impl Array {
             bail!("`end` and `count` are mutually exclusive");
         }
         let start = self.locate(start, true)?;
-        let end = end.or(count.map(|c| start as i64 + c));
+        let end = end.or(count.map(|c| (start as i64).saturating_add(c)));
         let end = self.locate(end.unwrap_or(self.len() as i64), true)?.max(start);
         Ok(self.0[start..end].into())
     }

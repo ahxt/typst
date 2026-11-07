@@ -81,7 +81,7 @@ pub fn neg(value: Value) -> HintedStrResult<Value> {
         Ratio(v) => Ratio(-v),
         Relative(v) => Relative(-v),
         Fraction(v) => Fraction(-v),
-        Duration(v) => Duration(-v),
+        Duration(v) => Duration(v.checked_neg()?),
         Datetime(_) => mismatch!("cannot apply unary '-' to {}", value),
         v => mismatch!("cannot apply '-' to {}", v),
     })
@@ -152,9 +152,9 @@ pub fn add(lhs: Value, rhs: Value) -> HintedStrResult<Value> {
             Stroke::from_pair(tiling, thickness).into_value()
         }
 
-        (Duration(a), Duration(b)) => Duration(a + b),
-        (Datetime(a), Duration(b)) => Datetime(a + b),
-        (Duration(a), Datetime(b)) => Datetime(b + a),
+        (Duration(a), Duration(b)) => Duration(a.checked_add(b)?),
+        (Datetime(a), Duration(b)) => Datetime(a.checked_add(b)?),
+        (Duration(a), Datetime(b)) => Datetime(b.checked_add(a)?),
 
         (Dyn(a), Dyn(b)) => {
             // Alignments can be summed.
@@ -207,8 +207,8 @@ pub fn sub(lhs: Value, rhs: Value) -> HintedStrResult<Value> {
 
         (Fraction(a), Fraction(b)) => Fraction(a - b),
 
-        (Duration(a), Duration(b)) => Duration(a - b),
-        (Datetime(a), Duration(b)) => Datetime(a - b),
+        (Duration(a), Duration(b)) => Duration(a.checked_sub(b)?),
+        (Datetime(a), Duration(b)) => Datetime(a.checked_sub(b)?),
         (Datetime(a), Datetime(b)) => Duration((a - b)?),
 
         (a, b) => mismatch!("cannot subtract {1} from {0}", a, b),
@@ -276,10 +276,10 @@ pub fn mul(lhs: Value, rhs: Value) -> HintedStrResult<Value> {
         (Content(a), b @ Int(_)) => Content(a.repeat(b.cast()?)),
         (a @ Int(_), Content(b)) => Content(b.repeat(a.cast()?)),
 
-        (Int(a), Duration(b)) => Duration(b * (a as f64)),
-        (Float(a), Duration(b)) => Duration(b * a),
-        (Duration(a), Int(b)) => Duration(a * (b as f64)),
-        (Duration(a), Float(b)) => Duration(a * b),
+        (Int(a), Duration(b)) => Duration(b.checked_mul(a as f64)?),
+        (Float(a), Duration(b)) => Duration(b.checked_mul(a)?),
+        (Duration(a), Int(b)) => Duration(a.checked_mul(b as f64)?),
+        (Duration(a), Float(b)) => Duration(a.checked_mul(b)?),
 
         (a, b) => mismatch!("cannot multiply {} with {}", a, b),
     })
@@ -333,8 +333,8 @@ pub fn div(lhs: Value, rhs: Value) -> HintedStrResult<Value> {
         (Fraction(a), Float(b)) => Fraction(a / b),
         (Fraction(a), Fraction(b)) => Float(a / b),
 
-        (Duration(a), Int(b)) => Duration(a / (b as f64)),
-        (Duration(a), Float(b)) => Duration(a / b),
+        (Duration(a), Int(b)) => Duration(a.checked_div(b as f64)?),
+        (Duration(a), Float(b)) => Duration(a.checked_div(b)?),
         (Duration(a), Duration(b)) => Float(a / b),
 
         (a, b) => mismatch!("cannot divide {} by {}", a, b),

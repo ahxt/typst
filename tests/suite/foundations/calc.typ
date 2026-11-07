@@ -459,3 +459,8 @@
 --- calc-atanh-greater-than-1 eval ---
 // Error: 13-14 value must be between -1 and 1 (exclusive)
 #calc.atanh(2)
+
+--- calc-round-extreme-digits eval ---
+// Test that extreme negative `digits` do not overflow.
+#test(calc.round(1, digits: -4000000000), 0)
+#test(calc.round(1.5, digits: -4000000000), 0.0)

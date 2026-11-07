@@ -77,6 +77,12 @@ pub use crate::__format_str as format_str;
 #[serde(transparent)]
 pub struct Str(EcoString);
 
+/// The maximum size in bytes that repeating a string or array may produce.
+///
+/// This keeps repetition well clear of the allocator's hard limits, which
+/// would otherwise abort the process instead of producing an error.
+pub(super) const MAX_REPEAT_BYTES: usize = 1 << 32;
+
 impl Str {
     /// Create a new, empty string.
     pub fn new() -> Self {
@@ -90,7 +96,7 @@ impl Str {
 
     /// Repeat the string a number of times.
     pub fn repeat(&self, n: usize) -> StrResult<Self> {
-        if self.0.len().checked_mul(n).is_none() {
+        if self.0.len().checked_mul(n).is_none_or(|len| len > MAX_REPEAT_BYTES) {
             return Err(eco_format!("cannot repeat this string {n} times"));
         }
         Ok(Self(self.0.repeat(n)))
@@ -267,7 +273,7 @@ impl Str {
             bail!("`end` and `count` are mutually exclusive");
         }
         let start = self.locate(start)?;
-        let end = end.or(count.map(|c| start as i64 + c));
+        let end = end.or(count.map(|c| (start as i64).saturating_add(c)));
         let end = self.locate(end.unwrap_or(self.len() as i64))?.max(start);
         Ok(self.0[start..end].into())
     }

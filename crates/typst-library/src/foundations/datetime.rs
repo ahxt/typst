@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::hash::Hash;
-use std::ops::{Add, Sub};
+use std::ops::Sub;
 
 use arrayvec::ArrayVec;
 use ecow::{EcoString, EcoVec, eco_format};
@@ -526,41 +526,52 @@ impl PartialOrd for Datetime {
     }
 }
 
-impl Add<Duration> for Datetime {
-    type Output = Self;
-
-    fn add(self, rhs: Duration) -> Self::Output {
+impl Datetime {
+    /// Add a duration, failing if the result is out of the supported range.
+    pub fn checked_add(self, rhs: Duration) -> StrResult<Self> {
         let rhs: time::Duration = rhs.into();
-        match self {
-            Self::Datetime(datetime) => Self::Datetime(datetime + rhs),
+        let out_of_range = || "datetime is out of the supported range";
+        Ok(match self {
+            Self::Datetime(datetime) => {
+                Self::Datetime(datetime.checked_add(rhs).ok_or_else(out_of_range)?)
+            }
             Self::Date(date) => {
                 use time::Time;
-                match PrimitiveDateTime::new(date, Time::MIDNIGHT) + rhs {
-                    dt if dt.time() == Time::MIDNIGHT => Self::Date(dt.date()),
-                    dt => Self::Datetime(dt),
+                let dt = PrimitiveDateTime::new(date, Time::MIDNIGHT)
+                    .checked_add(rhs)
+                    .ok_or_else(out_of_range)?;
+                if dt.time() == Time::MIDNIGHT {
+                    Self::Date(dt.date())
+                } else {
+                    Self::Datetime(dt)
                 }
             }
             Self::Time(time) => Self::Time(time + rhs),
-        }
+        })
     }
-}
 
-impl Sub<Duration> for Datetime {
-    type Output = Self;
-
-    fn sub(self, rhs: Duration) -> Self::Output {
+    /// Subtract a duration, failing if the result is out of the supported
+    /// range.
+    pub fn checked_sub(self, rhs: Duration) -> StrResult<Self> {
         let rhs: time::Duration = rhs.into();
-        match self {
-            Self::Datetime(datetime) => Self::Datetime(datetime - rhs),
+        let out_of_range = || "datetime is out of the supported range";
+        Ok(match self {
+            Self::Datetime(datetime) => {
+                Self::Datetime(datetime.checked_sub(rhs).ok_or_else(out_of_range)?)
+            }
             Self::Date(date) => {
                 use time::Time;
-                match PrimitiveDateTime::new(date, Time::MIDNIGHT) - rhs {
-                    dt if dt.time() == Time::MIDNIGHT => Self::Date(dt.date()),
-                    dt => Self::Datetime(dt),
+                let dt = PrimitiveDateTime::new(date, Time::MIDNIGHT)
+                    .checked_sub(rhs)
+                    .ok_or_else(out_of_range)?;
+                if dt.time() == Time::MIDNIGHT {
+                    Self::Date(dt.date())
+                } else {
+                    Self::Datetime(dt)
                 }
             }
             Self::Time(time) => Self::Time(time - rhs),
-        }
+        })
     }
 }
 

@@ -604,3 +604,11 @@
 // Error: 2-66 cannot compare none and string
 // Hint: 2-66 consider choosing a `key` or defining the comparison with `by`
 #(("a", "b", "c", "d", "e", "z") * 3 + ("c", none, "a")).sorted()
+
+--- array-repeat-too-large eval ---
+// Error: 3-28 cannot repeat this array 300000000000000000 times
+#((1,) * 300000000000000000)
+
+--- array-slice-count-overflow eval ---
+// Error: 2-48 array index out of bounds (index: 9223372036854775807, len: 3)
+#(1, 2, 3).slice(1, count: 9223372036854775807)

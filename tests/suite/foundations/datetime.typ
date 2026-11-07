@@ -124,3 +124,11 @@
 --- datetime-display-insufficient-information eval ---
 // Error: 2-36 failed to format datetime (insufficient information)
 #datetime.today().display("[hour]")
+
+--- datetime-add-duration-out-of-range eval ---
+// Error: 3-63 datetime is out of the supported range
+#(datetime(year: 9999, month: 12, day: 31) + duration(days: 1))
+
+--- datetime-sub-duration-out-of-range eval ---
+// Error: 3-62 datetime is out of the supported range
+#(datetime(year: -9999, month: 1, day: 1) - duration(days: 1))

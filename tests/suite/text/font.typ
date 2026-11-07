@@ -334,3 +334,8 @@ Hello _world_ *with* #text(weight: 550)[_Source Serif._]
 // Hint: 23-34 found 5 characters
 // Hint: 23-34 occurred in tag at index 0 (`"grade"`)
 #set text(variations: (grade: 10))
+
+--- strong-delta-overflow paged ---
+// Test that folding extreme weight deltas does not overflow.
+#set strong(delta: 9223372036854775807)
+*#[*x*]*

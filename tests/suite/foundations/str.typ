@@ -369,6 +369,14 @@
 #test("abc".rev(), "cba")
 #test("ax̂e".rev(), "ex̂a")
 
+--- string-repeat-too-large eval ---
+// Error: 3-28 cannot repeat this string 9223372036854775807 times
+#("a" * 9223372036854775807)
+
+--- string-slice-count-overflow eval ---
+// Error: 2-44 string index out of bounds (index: 9223372036854775807, len: 3)
+#"abc".slice(1, count: 9223372036854775807)
+
 --- string-unclosed eval ---
 // Error: 1:2-2:1 unclosed string
 #"hello\"

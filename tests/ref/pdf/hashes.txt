@@ -1839,6 +1839,7 @@ bfe00c268d4d2c1cce6679147b0ebf68 stroke-folding
 55eb1583866473cfbca49f681751f732 stroke-text
 fc5e1efb46569fae14a2d3b4872229e5 stroke-zero-thickness
 1a9bed749b752e9280e01fb04bd65983 strong-delta
+8485d42b2e7056b9b12c7e6e223044ac strong-delta-overflow
 531c685491fc3fb10e86e46eed26cd85 strong-double-star-empty-hint
 75a303353e9a495d3d6388b340cf3110 sub-super
 4abea7e7b9ee83ad86432e18f15ee17f sub-super-italic-compensation
