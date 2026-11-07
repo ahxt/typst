@@ -452,6 +452,7 @@ e9a2a2e4c9b516a495fd5ea3754b759e grid-header-rowbreak-auto-pos
 fa501cf4b02aedc7b5792fa2f9c06522 grid-header-rowbreak-fixed-pos
 22ab1fa93bf4de6a470da9465bdf5dc3 grid-header-rowbreak-mixed-pos
 e4af86f15ea5acc351d589268ee87099 grid-header-rowspan-base
+bd0b4967bf6a5fd7a1e67d561ac3091e grid-header-short-lived-after-pending
 2be22a85782e78836a5d5711b6c264c3 grid-header-skip
 ff0581824640067883edf5fd9ae296b9 grid-header-skip-unordered
 d0e1206057290c398eeb98ab18151297 grid-header-stroke-edge-cases

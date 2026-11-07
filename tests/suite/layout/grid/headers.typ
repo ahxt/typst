@@ -747,3 +747,14 @@
 	[a], [b],
 	[c], [d],
 )
+
+--- grid-header-short-lived-after-pending paged ---
+// Test that a short-lived header directly after a pending header does not
+// panic (the two headers have different levels and no row in between).
+#table(
+  [0],
+  table.header(level: 1, [A]),
+  table.header(level: 2, [B]),
+  table.header(level: 2, [C]),
+  [1],
+)

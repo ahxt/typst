@@ -61,6 +61,18 @@ impl<'a> GridLayouter<'a> {
         // be the header with the lowest level (sorted by increasing levels).
         let first_level = first_header.level;
 
+        // If the new headers are short-lived, no row follows the pending
+        // headers before the new ones are placed, so the pending headers are
+        // certainly not orphans. Flush them _before_ removing conflicting
+        // headers below, such that pending headers (whose heights are already
+        // stored in `repeating_header_heights`) are part of
+        // `repeating_headers` and are removed from both consistently. Otherwise
+        // the two vectors would get out of sync.
+        let short_lived = consecutive_headers.last().is_some_and(|h| h.short_lived);
+        if short_lived {
+            self.flush_orphans();
+        }
+
         // Stop repeating conflicting headers, even if the new headers are
         // short-lived or won't repeat.
         //
@@ -80,12 +92,11 @@ impl<'a> GridLayouter<'a> {
         }
 
         // Layout short-lived headers immediately.
-        if consecutive_headers.last().is_some_and(|h| h.short_lived) {
+        if short_lived {
             // No chance of orphans as we're immediately placing conflicting
             // headers afterwards, which basically are not headers, for all intents
             // and purposes. It is therefore guaranteed that all new headers have
-            // been placed at least once.
-            self.flush_orphans();
+            // been placed at least once (pending headers were flushed above).
 
             // Layout each conflicting header independently, without orphan
             // prevention (as they don't go into 'pending_headers').
